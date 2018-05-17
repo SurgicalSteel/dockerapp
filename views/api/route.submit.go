@@ -13,13 +13,6 @@ type SubmitResponse struct {
 	Error string `json:"error,omitempty"`
 }
 
-type GetResponse struct {
-	Status   string  `json:"status"`
-	Error    string  `json:"error,omitempty"`
-	Distance int     `json:"total_distance,omitempty"`
-	Duration float64 `json:"total_time,omitempty"`
-}
-
 func SubmitRoute(w http.ResponseWriter, r *http.Request) {
 	var (
 		req          [][]float64

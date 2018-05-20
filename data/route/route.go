@@ -24,7 +24,7 @@ var r Route
 
 const (
 	insertQuery = `insert into t_route (token_id, result, create_time) values ($1, $2, $3)`
-	getQuery    = `select token_id, status, result, create_time from t_route where token_id = $1`
+	getQuery    = `select token_id, result, create_time from t_route where token_id = $1`
 )
 
 func Init(i Route) {

@@ -7,7 +7,9 @@ import (
 	"github.com/febytanzil/dockerapp/data/route"
 	"github.com/febytanzil/dockerapp/data/token"
 	"github.com/febytanzil/dockerapp/framework/database"
+	route2 "github.com/febytanzil/dockerapp/services/route"
 	"github.com/febytanzil/dockerapp/views/api"
+	"github.com/febytanzil/dockerapp/views/async"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -20,8 +22,10 @@ func main() {
 	var wait time.Duration
 	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.Parse()
+	log.Println("routeapp starting")
 
-	inject()
+	cc := make(chan string)
+	inject(cc)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/route", api.SubmitRoute).Methods(http.MethodPost)
@@ -42,6 +46,10 @@ func main() {
 			log.Println(err)
 		}
 	}()
+
+	go func(ch chan string) {
+		async.CalculateRoute(<-ch)
+	}(cc)
 
 	c := make(chan os.Signal, 1)
 	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
@@ -64,9 +72,12 @@ func main() {
 	os.Exit(0)
 }
 
-func inject() {
-	database.InitDB("")
+func inject(ch chan string) {
+	database.InitDB("postgres://postgres@postgres:5432/route-db?sslmode=disable")
+
 	maps.Init(nil)
 	route.Init(nil)
 	token.Init(nil)
+
+	route2.Init(nil, ch)
 }

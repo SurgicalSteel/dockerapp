@@ -6,6 +6,7 @@ import (
 	"googlemaps.github.io/maps"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type SubmitResponse struct {
@@ -15,7 +16,7 @@ type SubmitResponse struct {
 
 func SubmitRoute(w http.ResponseWriter, r *http.Request) {
 	var (
-		req          [][]float64
+		req          [][]string
 		origin       maps.LatLng
 		destinations []maps.LatLng
 	)
@@ -42,13 +43,10 @@ func SubmitRoute(w http.ResponseWriter, r *http.Request) {
 
 	for i, v := range req {
 		if 0 == i {
-			origin.Lat = v[0]
-			origin.Lng = v[1]
+			origin.Lat, err = strconv.ParseFloat(v[0], 64)
+			origin.Lng, err = strconv.ParseFloat(v[1], 64)
 		} else {
-			destinations = append(destinations, maps.LatLng{
-				Lat: v[0],
-				Lng: v[1],
-			})
+			destinations = append(destinations, origin)
 		}
 	}
 

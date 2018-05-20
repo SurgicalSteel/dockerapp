@@ -4,7 +4,11 @@ services:
     image: ubuntu
     ports:
       - 9000:9000
-
+    volumes:
+      - ./dockerapp:/files/dockerapp
+    command: /files/dockerapp
+    links:
+      - postgres
   postgres:
     image: postgres
     ports:

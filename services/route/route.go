@@ -63,7 +63,9 @@ func (i *svcImpl) SubmitRoute(origin maps.LatLng, destinations []maps.LatLng) (s
 		err = token2.GetInstance().UpdateToken(token, token2.StatusPending)
 	}
 
-	i.c <- token
+	go func() {
+		i.c <- token
+	}()
 
 	return token, err
 }
@@ -104,7 +106,6 @@ func (i *svcImpl) generateToken(origin maps.LatLng, destinations []maps.LatLng) 
 
 func (i *svcImpl) CalculateRoute(token string) error {
 	//TODO tsp algo
-	log.Println("incoming calculate route", token)
 	exist, err := token2.GetInstance().GetToken(token)
 	if nil != err {
 		return err

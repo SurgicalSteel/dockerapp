@@ -24,7 +24,7 @@ func main() {
 	flag.Parse()
 	log.Println("routeapp starting")
 
-	cc := make(chan string)
+	cc := make(chan string, 100)
 	inject(cc)
 
 	r := mux.NewRouter()

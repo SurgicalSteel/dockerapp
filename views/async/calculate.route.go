@@ -6,7 +6,7 @@ import (
 )
 
 func CalculateRoute(token string) {
-	log.Println("token calculate", token)
+	log.Println("incoming token to calculate", token)
 	err := route.GetInstance().CalculateRoute(token)
 	if nil != err {
 		log.Println("error calculate route async", token, err)

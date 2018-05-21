@@ -30,6 +30,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/route", api.SubmitRoute).Methods(http.MethodPost)
 	r.HandleFunc("/route/{token}", api.GetRoute).Methods(http.MethodGet)
+	rt := http.TimeoutHandler(r, time.Second * 5, "timeout, please try again some time")
 
 	srv := &http.Server{
 		Addr: "0.0.0.0:9000",
@@ -37,7 +38,7 @@ func main() {
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      r, // Pass our instance of gorilla/mux in.
+		Handler:      rt, // Pass our instance of gorilla/mux in.
 	}
 
 	// Run our server in a goroutine so that it doesn't block.
@@ -52,6 +53,12 @@ func main() {
 			async.CalculateRoute(<-ch)
 		}
 	}(cc)
+	/*go func(ch chan string) {
+		for {
+			log.Println("channel buffer len", len(ch))
+			time.Sleep(time.Second * 3)
+		}
+	}(cc)*/
 
 	c := make(chan os.Signal, 1)
 	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)

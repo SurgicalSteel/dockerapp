@@ -83,6 +83,7 @@ func GetInstance() DMA {
 func (i *dmaImpl) GetShortestPath(origin maps.LatLng, destinations string) (Destinations, error) {
 	c, err := maps.NewClient(maps.WithAPIKey(key))
 	if nil != err {
+		log.Println("error get gmaps client", err)
 		return nil, err
 	}
 
@@ -91,6 +92,7 @@ func (i *dmaImpl) GetShortestPath(origin maps.LatLng, destinations string) (Dest
 		Destinations: []string{destinations},
 	})
 	if nil != err {
+		log.Println("error calculate distance matrix", err)
 		return nil, err
 	}
 	d := Destinations{}

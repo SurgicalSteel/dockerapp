@@ -6,6 +6,7 @@ import (
 	"googlemaps.github.io/maps"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -60,7 +61,7 @@ func SubmitRoute(w http.ResponseWriter, r *http.Request) {
 		w.Write(resBytes)
 	} else {
 		res := &SubmitResponse{
-			Token: token,
+			Token: url.PathEscape(token),
 		}
 		resBytes, _ := json.Marshal(res)
 		w.WriteHeader(http.StatusOK)

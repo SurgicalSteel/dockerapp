@@ -44,6 +44,9 @@ func GetInstance() Route {
 
 func (i *routeImpl) InsertRoute(data *RouteData) error {
 	_, err := database.Get().Exec(insertQuery, data.TokenID, data.Result, time.Now())
+	if nil != err {
+		log.Println("error insert route result", err)
+	}
 	return err
 }
 

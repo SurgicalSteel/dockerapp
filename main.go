@@ -48,7 +48,9 @@ func main() {
 	}()
 
 	go func(ch chan string) {
-		async.CalculateRoute(<-ch)
+		for {
+			async.CalculateRoute(<-ch)
+		}
 	}(cc)
 
 	c := make(chan os.Signal, 1)

@@ -61,9 +61,8 @@ func (i *svcImpl) SubmitRoute(origin maps.LatLng, destinations []maps.LatLng) (s
 		err = token2.GetInstance().InsertToken(token, origin, maps.Encode(destinations))
 	} else if token2.StatusError == exist.Status {
 		err = token2.GetInstance().UpdateToken(token, token2.StatusPending)
-	} else if token2.StatusPending == exist.Status {
-		return token, nil
 	}
+
 	i.c <- token
 
 	return token, err
@@ -105,13 +104,26 @@ func (i *svcImpl) generateToken(origin maps.LatLng, destinations []maps.LatLng) 
 
 func (i *svcImpl) CalculateRoute(token string) error {
 	//TODO tsp algo
+	log.Println("incoming calculate route", token)
 	exist, err := token2.GetInstance().GetToken(token)
-	route.GetInstance()
+	if nil != err {
+		return err
+	}
+	if nil == exist {
+		return errors.New("no submitted token exist")
+	}
+	if token2.StatusSuccess == exist.Status {
+		return nil
+	}
+
 	result, err := maps2.GetInstance().GetShortestPath(maps.LatLng{
 		Lat: exist.OriginLat,
 		Lng: exist.OriginLong,
 	}, exist.Destinations)
 	if nil != err {
+		if err = token2.GetInstance().UpdateToken(token, token2.StatusError); nil != err {
+			log.Println("failed to set error for token", token)
+		}
 		return ErrCalculate
 	}
 	res := new(Result)

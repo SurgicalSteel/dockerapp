@@ -1,13 +1,14 @@
 version: '3'
 services:
   app:
-    image: ubuntu
+    image: ubuntu:18.04
     ports:
       - 9000:9000
     volumes:
       - ./dockerapp:/files/dockerapp
-    command: /files/dockerapp
-    links:
+      - ./wait-for-it.sh:/files/wait-for-it.sh
+    command: sh -c './files/wait-for-it.sh postgres:5432 -- /files/dockerapp'
+    depends_on:
       - postgres
   postgres:
     image: postgres

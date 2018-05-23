@@ -58,13 +58,21 @@ func GetRoute(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(resBytes)
 	} else {
-		if nil == result {
-
-		}
 		res := &GetResponse{
+			Status: "failure",
+			Error:  "error data",
+		}
+		if nil == result {
+			resBytes, _ := json.Marshal(res)
+			w.WriteHeader(http.StatusOK)
+			w.Write(resBytes)
+			return
+		}
+		res = &GetResponse{
 			Status:   "OK",
-			Distance: result.Distance,
-			Duration: result.Time,
+			Distance: result.TotalDistance,
+			Duration: result.TotalTime,
+			Path:     result.Path,
 		}
 		resBytes, _ := json.Marshal(res)
 		w.WriteHeader(http.StatusOK)

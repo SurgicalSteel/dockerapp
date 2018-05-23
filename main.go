@@ -30,7 +30,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/route", api.SubmitRoute).Methods(http.MethodPost)
 	r.HandleFunc("/route/{token}", api.GetRoute).Methods(http.MethodGet)
-	rt := http.TimeoutHandler(r, time.Second * 5, "timeout, please try again some time")
+	rt := http.TimeoutHandler(r, time.Second*5, "timeout, please try again some time")
 
 	srv := &http.Server{
 		Addr: "0.0.0.0:9000",

@@ -8,13 +8,12 @@ import (
 	token2 "github.com/febytanzil/dockerapp/data/token"
 	"googlemaps.github.io/maps"
 	"log"
-	"sort"
 	"time"
 )
 
 type RouteSvc interface {
 	SubmitRoute(origin maps.LatLng, destinations []maps.LatLng) (string, error)
-	GetShortestRoute(token string) (*Result, error)
+	GetShortestRoute(token string) (*maps2.Destinations, error)
 	CalculateRoute(token string) error
 }
 
@@ -37,11 +36,6 @@ func GetInstance() RouteSvc {
 
 type svcImpl struct {
 	c chan string
-}
-type Result struct {
-	Path     []maps.LatLng `json:"path"`
-	Distance int           `json:"distance"`
-	Time     float64       `json:"time"`
 }
 
 var (
@@ -70,9 +64,9 @@ func (i *svcImpl) SubmitRoute(origin maps.LatLng, destinations []maps.LatLng) (s
 	return token, err
 }
 
-func (i *svcImpl) GetShortestRoute(token string) (*Result, error) {
+func (i *svcImpl) GetShortestRoute(token string) (*maps2.Destinations, error) {
 	exist, err := token2.GetInstance().GetToken(token)
-	res := new(Result)
+	res := new(maps2.Destinations)
 	if nil != err {
 		return nil, err
 	}
@@ -114,6 +108,7 @@ func (i *svcImpl) CalculateRoute(token string) error {
 		return errors.New("no submitted token exist")
 	}
 	if token2.StatusSuccess == exist.Status {
+		log.Println("already calculate token", token)
 		return nil
 	}
 
@@ -127,12 +122,8 @@ func (i *svcImpl) CalculateRoute(token string) error {
 		}
 		return ErrCalculate
 	}
-	res := new(Result)
-	sort.Sort(result)
-	res.Distance = result.TotalDistance()
-	res.Time = result.TotalTime()
-	res.Path = result.Path()
-	resStr, _ := json.Marshal(res)
+
+	resStr, _ := json.Marshal(result)
 	err = route.GetInstance().InsertRoute(&route.RouteData{
 		Result:     string(resStr),
 		TokenID:    exist.ID,
@@ -141,5 +132,6 @@ func (i *svcImpl) CalculateRoute(token string) error {
 	if nil != err {
 		log.Println("error inserting result", err)
 	}
+
 	return err
 }

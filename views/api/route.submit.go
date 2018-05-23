@@ -47,7 +47,10 @@ func SubmitRoute(w http.ResponseWriter, r *http.Request) {
 			origin.Lat, err = strconv.ParseFloat(v[0], 64)
 			origin.Lng, err = strconv.ParseFloat(v[1], 64)
 		} else {
-			destinations = append(destinations, origin)
+			d := new(maps.LatLng)
+			d.Lat, err = strconv.ParseFloat(v[0], 64)
+			d.Lng, err = strconv.ParseFloat(v[1], 64)
+			destinations = append(destinations, *d)
 		}
 	}
 

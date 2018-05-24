@@ -7,6 +7,7 @@ import (
 	"github.com/febytanzil/dockerapp/data/route"
 	"github.com/febytanzil/dockerapp/data/token"
 	"github.com/febytanzil/dockerapp/framework/database"
+	"github.com/febytanzil/dockerapp/framework/middleware"
 	route2 "github.com/febytanzil/dockerapp/services/route"
 	"github.com/febytanzil/dockerapp/views/api"
 	"github.com/febytanzil/dockerapp/views/async"
@@ -24,7 +25,7 @@ func main() {
 	flag.Parse()
 	log.Println("routeapp starting")
 
-	cc := make(chan string, 100)
+	cc := make(chan string, middleware.Limit)
 	inject(cc)
 
 	r := mux.NewRouter()
@@ -38,7 +39,7 @@ func main() {
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      rt, // Pass our instance of gorilla/mux in.
+		Handler:      middleware.LimitRate(rt), // Pass our instance of gorilla/mux in.
 	}
 
 	// Run our server in a goroutine so that it doesn't block.

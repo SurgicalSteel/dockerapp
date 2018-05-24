@@ -8,7 +8,7 @@ import (
 )
 
 type Route interface {
-	InsertRoute(data *RouteData) error
+	InsertRoute(tx *sql.Tx, data *RouteData) error
 	GetRouteByID(tokenID int64) (*RouteData, error)
 }
 
@@ -42,8 +42,8 @@ func GetInstance() Route {
 	return r
 }
 
-func (i *routeImpl) InsertRoute(data *RouteData) error {
-	_, err := database.Get().Exec(insertQuery, data.TokenID, data.Result, time.Now())
+func (i *routeImpl) InsertRoute(tx *sql.Tx, data *RouteData) error {
+	_, err := tx.Exec(insertQuery, data.TokenID, data.Result, time.Now())
 	if nil != err {
 		log.Println("error insert route result", err)
 	}

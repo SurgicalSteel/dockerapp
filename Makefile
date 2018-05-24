@@ -8,3 +8,6 @@ build-docker:
 
 run:
 	@dockerapp
+
+build-image:
+	@docker build --tag ceruntu .

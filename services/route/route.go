@@ -6,6 +6,7 @@ import (
 	maps2 "github.com/febytanzil/dockerapp/data/maps"
 	"github.com/febytanzil/dockerapp/data/route"
 	token2 "github.com/febytanzil/dockerapp/data/token"
+	"github.com/febytanzil/dockerapp/framework/database"
 	"googlemaps.github.io/maps"
 	"log"
 	"time"
@@ -54,7 +55,7 @@ func (i *svcImpl) SubmitRoute(origin maps.LatLng, destinations []maps.LatLng) (s
 	if nil == exist {
 		err = token2.GetInstance().InsertToken(token, origin, maps.Encode(destinations))
 	} else if token2.StatusError == exist.Status {
-		err = token2.GetInstance().UpdateToken(token, token2.StatusPending)
+		err = token2.GetInstance().UpdateToken(nil, token, token2.StatusPending)
 	}
 
 	go func() {
@@ -117,20 +118,34 @@ func (i *svcImpl) CalculateRoute(token string) error {
 		Lng: exist.OriginLong,
 	}, exist.Destinations)
 	if nil != err {
-		if err = token2.GetInstance().UpdateToken(token, token2.StatusError); nil != err {
+		if err = token2.GetInstance().UpdateToken(nil, token, token2.StatusError); nil != err {
 			log.Println("failed to set error for token", token)
 		}
 		return ErrCalculate
 	}
 
+	tx, err := database.Get().Begin()
+	if nil != err {
+		log.Println("failed to get tx", err)
+	}
+	defer tx.Rollback()
+
 	resStr, _ := json.Marshal(result)
-	err = route.GetInstance().InsertRoute(&route.RouteData{
+	err = route.GetInstance().InsertRoute(tx, &route.RouteData{
 		Result:     string(resStr),
 		TokenID:    exist.ID,
 		CreateTime: time.Now(),
 	})
 	if nil != err {
-		log.Println("error inserting result", err)
+		return err
+	}
+
+	err = token2.GetInstance().UpdateToken(tx, token, token2.StatusSuccess)
+	if nil == err {
+		err = tx.Commit()
+		if nil != err {
+			log.Println("failed to commit tx", err)
+		}
 	}
 
 	return err

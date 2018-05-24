@@ -59,12 +59,17 @@ func (i *dmaImpl) GetShortestPath(origin maps.LatLng, destinations string) (*Des
 		log.Println("error get gmaps client", err)
 		return nil, err
 	}
+	destArr := maps.DecodePolyline(destinations)
+	wpArr := make([]string, len(destArr))
+	for _, v := range destArr {
+		wpArr = append(wpArr, v.String())
+	}
 
 	routes, _, err := c.Directions(context.Background(), &maps.DirectionsRequest{
 		Origin:      origin.String(),
 		Destination: origin.String(),
-		Waypoints:   []string{destinations},
-		Optimize: true,
+		Waypoints:   wpArr,
+		Optimize:    true,
 	})
 	if nil != err {
 		log.Println("error calculate distance", err)
@@ -77,6 +82,7 @@ func (i *dmaImpl) GetShortestPath(origin maps.LatLng, destinations string) (*Des
 	route := routes[0]
 	d := new(Destinations)
 	dests := maps.DecodePolyline(destinations)
+	d.Path = append(d.Path, origin)
 	for i, v := range route.WaypointOrder {
 		d.Path = append(d.Path, dests[v])
 		d.TotalDistance += route.Legs[i].Meters

@@ -2,20 +2,20 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/febytanzil/dockerapp/services/route"
 	"github.com/gorilla/mux"
 	"github.com/tokopedia/transactionapp/core/log"
-	maps2 "googlemaps.github.io/maps"
 	"net/http"
 	"net/url"
 )
 
 type GetResponse struct {
-	Status   string         `json:"status"`
-	Error    string         `json:"error,omitempty"`
-	Distance int            `json:"total_distance,omitempty"`
-	Duration float64        `json:"total_time,omitempty"`
-	Path     []maps2.LatLng `json:"path,omitempty"`
+	Status   string     `json:"status"`
+	Error    string     `json:"error,omitempty"`
+	Distance int        `json:"total_distance,omitempty"`
+	Duration float64    `json:"total_time,omitempty"`
+	Path     [][]string `json:"path,omitempty"`
 }
 
 func GetRoute(w http.ResponseWriter, r *http.Request) {
@@ -69,10 +69,12 @@ func GetRoute(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		res = &GetResponse{
-			Status:   "OK",
+			Status:   "success",
 			Distance: result.TotalDistance,
 			Duration: result.TotalTime,
-			Path:     result.Path,
+		}
+		for _, v := range result.Path {
+			res.Path = append(res.Path, []string{fmt.Sprintf("%.6f", v.Lat), fmt.Sprintf("%.6f", v.Lng)})
 		}
 		resBytes, _ := json.Marshal(res)
 		w.WriteHeader(http.StatusOK)

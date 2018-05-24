@@ -11,7 +11,7 @@ import (
 type Token interface {
 	InsertToken(token string, origin maps.LatLng, destinations string) error
 	GetToken(token string) (*TokenData, error)
-	UpdateToken(token string, status int) error
+	UpdateToken(tx *sql.Tx, token string, status int) error
 }
 
 type TokenData struct {
@@ -74,8 +74,14 @@ func (i *tokenImpl) GetToken(token string) (*TokenData, error) {
 	return r, err
 }
 
-func (i *tokenImpl) UpdateToken(token string, status int) error {
-	_, err := database.Get().Exec(updateQuery, status, token)
+func (i *tokenImpl) UpdateToken(tx *sql.Tx, token string, status int) error {
+	var err error
+	if nil == tx {
+		_, err = database.Get().Exec(updateQuery, status, token)
+	} else {
+		_, err = tx.Exec(updateQuery, status, token)
+	}
+
 	if nil != err {
 		log.Println("error update token", err)
 	}

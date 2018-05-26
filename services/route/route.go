@@ -100,7 +100,6 @@ func (i *svcImpl) generateToken(origin maps.LatLng, destinations []maps.LatLng) 
 }
 
 func (i *svcImpl) CalculateRoute(token string) error {
-	//TODO tsp algo
 	exist, err := token2.GetInstance().GetToken(token)
 	if nil != err {
 		return err

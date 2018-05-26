@@ -3,6 +3,7 @@ package maps
 import (
 	"context"
 	"errors"
+	"github.com/febytanzil/dockerapp/framework/config"
 	"googlemaps.github.io/maps"
 	"log"
 	"net/http"
@@ -32,15 +33,13 @@ var (
 		Timeout: time.Second * 5,
 	}
 	dma DMA
-)
-
-const (
-	key = `AIzaSyCeSzsBN7NJ2wmIBQG7KEiHUCetwBXcbPA`
+	key string
 )
 
 func Init(d DMA) {
 	if nil == d {
 		dma = &dmaImpl{}
+		key = config.Get().Maps.Key
 	} else {
 		dma = d
 	}

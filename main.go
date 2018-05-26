@@ -6,6 +6,7 @@ import (
 	"github.com/febytanzil/dockerapp/data/maps"
 	"github.com/febytanzil/dockerapp/data/route"
 	"github.com/febytanzil/dockerapp/data/token"
+	"github.com/febytanzil/dockerapp/framework/config"
 	"github.com/febytanzil/dockerapp/framework/database"
 	"github.com/febytanzil/dockerapp/framework/middleware"
 	route2 "github.com/febytanzil/dockerapp/services/route"
@@ -25,8 +26,15 @@ func main() {
 	flag.Parse()
 	log.Println("routeapp starting")
 
-	cc := make(chan string, middleware.Limit)
-	inject(cc)
+	ok := config.ReadConfig("/etc/dockerapp/", "main") || config.ReadConfig("files/config/", "main")
+	if !ok {
+		log.Fatal("failed to read config")
+	}
+
+	cfg := config.Get()
+
+	cc := make(chan string, cfg.App.Limit)
+	inject(cc, cfg)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/route", middleware.LimitRate(api.SubmitRoute)).Methods(http.MethodPost)
@@ -82,8 +90,8 @@ func main() {
 	os.Exit(0)
 }
 
-func inject(ch chan string) {
-	database.InitDB("postgres://postgres@postgres:5432/route-db?sslmode=disable")
+func inject(ch chan string, c *config.MainConfig) {
+	database.InitDB(c.Database.DSN)
 
 	maps.Init(nil)
 	route.Init(nil)

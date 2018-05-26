@@ -1,17 +1,20 @@
 package middleware
 
-import "net/http"
-
-const Limit = 100
+import (
+	"github.com/febytanzil/dockerapp/framework/config"
+	"net/http"
+)
 
 func LimitRate(h http.HandlerFunc) http.HandlerFunc {
-	limit := make(chan bool, Limit)
+	limit := config.Get().App.Limit
+	limitChan := make(chan bool, limit)
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if Limit == len(limit) {
+		if limit == len(limitChan) {
 			w.WriteHeader(http.StatusTooManyRequests)
 		} else {
-			limit <- true
-			defer func() { <-limit }()
+			limitChan <- true
+			defer func() { <-limitChan }()
 			h.ServeHTTP(w, r)
 		}
 	})

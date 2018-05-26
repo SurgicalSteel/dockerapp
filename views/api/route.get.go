@@ -21,6 +21,8 @@ type GetResponse struct {
 func GetRoute(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	raw, ok := vars["token"]
+	w.Header().Set("Content-Type", "application/json")
+
 	if !ok {
 		res := &GetResponse{
 			Error: "failed to read token",

@@ -29,7 +29,7 @@ func main() {
 	inject(cc)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/route", api.SubmitRoute).Methods(http.MethodPost)
+	r.HandleFunc("/route", middleware.LimitRate(api.SubmitRoute)).Methods(http.MethodPost)
 	r.HandleFunc("/route/{token}", api.GetRoute).Methods(http.MethodGet)
 	rt := http.TimeoutHandler(r, time.Second*5, "timeout, please try again some time")
 
@@ -39,7 +39,7 @@ func main() {
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      middleware.LimitRate(rt), // Pass our instance of gorilla/mux in.
+		Handler:      rt, // Pass our instance of gorilla/mux in.
 	}
 
 	// Run our server in a goroutine so that it doesn't block.

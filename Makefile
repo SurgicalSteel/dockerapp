@@ -10,4 +10,4 @@ run:
 	@dockerapp
 
 build-image:
-	@docker build --tag ceruntu .
+	@docker build --tag ceruntu ./files/docker/

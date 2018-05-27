@@ -5,13 +5,14 @@ sample go lang 3 layers app run on top of docker
 ### Prerequisite
 - Docker version 18.03.1-ce or later
 - Go 1.10.1 or later
+- Google Maps API Key
 
 ### Build & Installation
 ```sh
 $ go get -u
 $ make build-image
 $ make build-docker
-$ docker-compose up
+$ make run
 ```
 
 ### Docker stack

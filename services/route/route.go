@@ -7,6 +7,7 @@ import (
 	"github.com/febytanzil/dockerapp/data/route"
 	token2 "github.com/febytanzil/dockerapp/data/token"
 	"github.com/febytanzil/dockerapp/framework/database"
+	"github.com/febytanzil/dockerapp/framework/utils/token"
 	"googlemaps.github.io/maps"
 	"log"
 	"time"
@@ -96,7 +97,11 @@ func (i *svcImpl) GetShortestRoute(token string) (*maps2.Destinations, error) {
 }
 
 func (i *svcImpl) generateToken(origin maps.LatLng, destinations []maps.LatLng) string {
-	return maps.Encode([]maps.LatLng{origin}) + maps.Encode(destinations)
+	name := origin.String() + "|"
+	for _, v := range destinations {
+		name += v.String() + "|"
+	}
+	return token.GenerateToken(name)
 }
 
 func (i *svcImpl) CalculateRoute(token string) error {

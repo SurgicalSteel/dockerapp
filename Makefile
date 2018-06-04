@@ -15,4 +15,4 @@ run:
 dispose:
 	@docker-compose down
 
-restart: dispose run
+restart: build-docker dispose run

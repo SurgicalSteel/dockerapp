@@ -11,3 +11,8 @@ build-image:
 
 run:
 	@docker-compose up
+
+dispose:
+	@docker-compose down
+
+restart: dispose run

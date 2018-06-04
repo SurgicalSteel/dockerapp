@@ -58,7 +58,11 @@ func (i *dmaImpl) GetShortestPath(origin maps.LatLng, destinations string) (*Des
 		log.Println("error get gmaps client", err)
 		return nil, err
 	}
-	destArr := maps.DecodePolyline(destinations)
+	destArr, err := maps.DecodePolyline(destinations)
+	if nil != err {
+		log.Println("error decode polyline", err)
+		return nil, err
+	}
 	wpArr := make([]string, len(destArr))
 	for _, v := range destArr {
 		wpArr = append(wpArr, v.String())
@@ -80,7 +84,11 @@ func (i *dmaImpl) GetShortestPath(origin maps.LatLng, destinations string) (*Des
 
 	route := routes[0]
 	d := new(Destinations)
-	dests := maps.DecodePolyline(destinations)
+	dests, err := maps.DecodePolyline(destinations)
+	if nil != err {
+		log.Println("error decode polyline", err)
+		return nil, err
+	}
 	d.Path = append(d.Path, origin)
 	for i, v := range route.WaypointOrder {
 		d.Path = append(d.Path, dests[v])
